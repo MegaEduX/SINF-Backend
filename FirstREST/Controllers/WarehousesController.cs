@@ -1,0 +1,50 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Web.Http;
+
+namespace FirstREST.Controllers
+{
+    public class WarehousesController : ApiController
+    {
+        // GET api/Warehouses
+        public IEnumerable<Lib_Primavera.Model.Armazem> Get()
+        {
+            IEnumerable<Lib_Primavera.Model.Armazem> ret = Lib_Primavera.PriIntegration.Warehouses_List();
+            return ret;
+        }
+
+        // GET api/Warehouses/A1
+        public Lib_Primavera.Model.Armazem Get(string id)
+        {
+            Lib_Primavera.Model.Armazem ret = Lib_Primavera.PriIntegration.Warehouses_Get(id);
+            if (ret == null)
+            {
+                throw new HttpResponseException(
+                        Request.CreateResponse(HttpStatusCode.NotFound));
+
+            }
+            else
+            {
+                return ret;
+            }
+        }
+
+        // POST api/values
+        public void Post([FromBody]string value)
+        {
+        }
+
+        // PUT api/values/5
+        public void Put(int id, [FromBody]string value)
+        {
+        }
+
+        // DELETE api/values/5
+        public void Delete(int id)
+        {
+        }
+    }
+}
