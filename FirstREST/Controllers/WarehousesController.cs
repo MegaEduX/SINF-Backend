@@ -17,9 +17,9 @@ namespace FirstREST.Controllers
         }
 
         // GET api/Warehouses/A1
-        public Lib_Primavera.Model.Armazem Get(string id)
+        public List<Lib_Primavera.Model.ArmazemLoc> Get(string id)
         {
-            Lib_Primavera.Model.Armazem ret = Lib_Primavera.PriIntegration.Warehouses_Get(id);
+            List<Lib_Primavera.Model.ArmazemLoc> ret = Lib_Primavera.PriIntegration.WarehousesLocation_Get(id);
             if (ret == null)
             {
                 throw new HttpResponseException(

@@ -429,28 +429,28 @@ namespace FirstREST.Lib_Primavera
 
         #region DocsVenda
 
-        public static Model.RespostaErro Encomendas_New(Model.DocVenda dv)
+        public static void Encomendas_Transforma(GcpBELinhasDocumentoVenda[] dv)
         {
-            Lib_Primavera.Model.RespostaErro erro = new Model.RespostaErro();
+            /*Lib_Primavera.Model.RespostaErro erro = new Model.RespostaErro();*/
             GcpBEDocumentoVenda myEnc = new GcpBEDocumentoVenda();
              
-            GcpBELinhaDocumentoVenda myLin = new GcpBELinhaDocumentoVenda();
+            /*GcpBELinhaDocumentoVenda myLin = new GcpBELinhaDocumentoVenda();
 
             GcpBELinhasDocumentoVenda myLinhas = new GcpBELinhasDocumentoVenda();
              
             PreencheRelacaoVendas rl = new PreencheRelacaoVendas();
-            List<Model.LinhaDocVenda> lstlindv = new List<Model.LinhaDocVenda>();
+            List<Model.LinhaDocVenda> lstlindv = new List<Model.LinhaDocVenda>();*/
             
             try
             {
                 if (PriEngine.InitializeCompany(FirstREST.Properties.Settings.Default.Company.Trim(), FirstREST.Properties.Settings.Default.User.Trim(), FirstREST.Properties.Settings.Default.Password.Trim()) == true)
-                {
+                {/*
                     // Atribui valores ao cabecalho do doc
                     //myEnc.set_DataDoc(dv.Data);
-                    myEnc.set_Entidade(dv.Entidade);
-                    myEnc.set_Serie(dv.Serie);
-                    myEnc.set_Tipodoc("ECL");
-                    myEnc.set_TipoEntidade("C");
+                    //myEnc.set_Entidade(dv.Entidade);
+                    //myEnc.set_Serie(dv.Serie);
+                    //myEnc.set_Tipodoc("ECL");
+                    //myEnc.set_TipoEntidade("C");
                     // Linhas do documento para a lista de linhas
                     lstlindv = dv.LinhasDoc;
                     PriEngine.Engine.Comercial.Vendas.PreencheDadosRelacionados(myEnc, rl);
@@ -459,34 +459,50 @@ namespace FirstREST.Lib_Primavera
                         PriEngine.Engine.Comercial.Vendas.AdicionaLinha(myEnc, lin.CodArtigo, lin.Quantidade, "", "", lin.PrecoUnitario, lin.Desconto);
                     }
 
+                    */
+                    PriEngine.Engine.Comercial.Vendas.TransformaDocumentoEX(dv,myEnc);
+                    myEnc.set_Tipodoc("FA");
 
-                   // PriEngine.Engine.Comercial.Compras.TransformaDocumento(
-
-                    PriEngine.Engine.IniciaTransaccao();
-                    PriEngine.Engine.Comercial.Vendas.Actualiza(myEnc, "Teste");
-                    PriEngine.Engine.TerminaTransaccao();
-                    erro.Erro = 0;
-                    erro.Descricao = "Sucesso";
-                    return erro;
-                }
-                else
-                {
-                    erro.Erro = 1;
-                    erro.Descricao = "Erro ao abrir empresa";
-                    return erro;
-
-                }
-
+            }
             }
             catch (Exception ex)
             {
-                PriEngine.Engine.DesfazTransaccao();
-                erro.Erro = 1;
-                erro.Descricao = ex.Message;
-                return erro;
+                
             }
         }
 
+
+        public static GcpBEDocumentoVenda DocvendaToBEDocVenda(Model.DocVenda doc)
+        {
+            GcpBEDocumentoVenda ret = new GcpBEDocumentoVenda();
+
+            ret.set_ID(doc.id);
+            ret.set_Entidade(doc.Entidade);
+            ret.set_NumDoc(doc.NumDoc);
+            ret.set_DataDoc(doc.Data);
+            ret.set_TotalMerc(doc.TotalMerc);
+            ret.set_Serie(doc.Serie);
+            GcpBELinhasDocumentoVenda linhasDoc = new GcpBELinhasDocumentoVenda();
+
+            foreach(Lib_Primavera.Model.LinhaDocVenda linha in doc.LinhasDoc){
+                GcpBELinhaDocumentoVenda l = new GcpBELinhaDocumentoVenda();
+                l.set_AutoID(linha.IdCabecDoc);
+                l.set_Artigo(linha.CodArtigo);
+                l.set_Descricao(linha.DescArtigo);
+                l.set_Quantidade(linha.Quantidade);
+                l.set_Unidade(linha.Unidade);
+                l.set_Desconto1(Convert.ToSingle(linha.Desconto));
+                l.set_PrecUnit(linha.PrecoUnitario);
+                l.set_TotalIliquido(linha.TotalILiquido);
+                l.set_TotalDC(linha.TotalLiquido);
+
+
+
+            }
+            
+            return ret;
+
+        }
      
 
         public static List<Model.DocVenda> Encomendas_List()
@@ -620,7 +636,7 @@ namespace FirstREST.Lib_Primavera
             return listdc;
         }
 
-        public static Model.Armazem Warehouses_Get(string nome)
+        /*public static Model.Armazem Warehouses_Get(string nome)
         {
 
             StdBELista objListCab;
@@ -636,6 +652,35 @@ namespace FirstREST.Lib_Primavera
                 dc.CodPostal = objListCab.Valor("Cp");
 
                 return dc;
+            }
+            return null;
+        }
+         */
+
+        public static List<Model.ArmazemLoc> WarehousesLocation_Get(string nome)
+        {
+
+            StdBELista objListCab;
+            Model.ArmazemLoc dc = new Model.ArmazemLoc();
+            List<Lib_Primavera.Model.ArmazemLoc> lista = new List<Model.ArmazemLoc>();
+
+            if (PriEngine.InitializeCompany(FirstREST.Properties.Settings.Default.Company.Trim(), FirstREST.Properties.Settings.Default.User.Trim(), FirstREST.Properties.Settings.Default.Password.Trim()) == true)
+            {
+
+                objListCab = PriEngine.Engine.Consulta("select Localizacao, Armazem, Descricao From ArmazemLocalizacoes Where Armazem = '" + nome + "'");
+                while (!objListCab.NoFim())
+                {
+                    dc = new Model.ArmazemLoc();
+                    dc.Nome = objListCab.Valor("Armazem");
+                    dc.Localizacao = objListCab.Valor("Localizacao");
+                    dc.Descricao= objListCab.Valor("Descricao");
+
+                    lista.Add(dc);
+                    objListCab.Seguinte();
+
+                }
+
+                return lista;
             }
             return null;
         }
