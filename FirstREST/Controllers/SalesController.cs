@@ -34,6 +34,7 @@ namespace FirstREST.Controllers
             }
             else
             {
+                Lib_Primavera.PriIntegration.Encomendas_Transforma(Lib_Primavera.PriIntegration.DocvendaToBEDocVenda(docvenda));
                 return docvenda;
             }
         }
@@ -42,7 +43,7 @@ namespace FirstREST.Controllers
         public HttpResponseMessage Post(Lib_Primavera.Model.DocVenda dv)
         {
             Lib_Primavera.Model.RespostaErro erro = new Lib_Primavera.Model.RespostaErro();
-            erro = Lib_Primavera.PriIntegration.Encomendas_New(dv);
+            //erro = Lib_Primavera.PriIntegration.Encomendas_New(dv);
 
             if (erro.Erro == 0)
             {

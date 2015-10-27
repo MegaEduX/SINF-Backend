@@ -429,10 +429,10 @@ namespace FirstREST.Lib_Primavera
 
         #region DocsVenda
 
-        public static void Encomendas_Transforma(GcpBELinhasDocumentoVenda[] dv)
+
+        public static void Encomendas_Transforma(GcpBEDocumentoVenda dv)
         {
             /*Lib_Primavera.Model.RespostaErro erro = new Model.RespostaErro();*/
-            GcpBEDocumentoVenda myEnc = new GcpBEDocumentoVenda();
              
             /*GcpBELinhaDocumentoVenda myLin = new GcpBELinhaDocumentoVenda();
 
@@ -440,6 +440,13 @@ namespace FirstREST.Lib_Primavera
              
             PreencheRelacaoVendas rl = new PreencheRelacaoVendas();
             List<Model.LinhaDocVenda> lstlindv = new List<Model.LinhaDocVenda>();*/
+
+            GcpBEDocumentoVenda doc = new GcpBEDocumentoVenda();
+            doc.set_Entidade(dv.get_Entidade());
+            doc.set_DataDoc(dv.get_DataDoc());
+            doc.set_TotalMerc(dv.get_TotalMerc());
+            doc.set_Serie(dv.get_Serie());
+            doc.set_Entidade("FA");
             
             try
             {
@@ -460,10 +467,11 @@ namespace FirstREST.Lib_Primavera
                     }
 
                     */
-                    PriEngine.Engine.Comercial.Vendas.TransformaDocumentoEX(dv,myEnc);
-                    myEnc.set_Tipodoc("FA");
+                    List<GcpBELinhasDocumentoVenda> l = new List<GcpBELinhasDocumentoVenda>();
+                    l.Add(dv.get_Linhas());
+                    PriEngine.Engine.Comercial.Vendas.TransformaDocumentoEX2(l.ToArray(), doc, false, "", true);
 
-            }
+                }
             }
             catch (Exception ex)
             {
@@ -496,10 +504,11 @@ namespace FirstREST.Lib_Primavera
                 l.set_TotalIliquido(linha.TotalILiquido);
                 l.set_TotalDC(linha.TotalLiquido);
 
-
-
+                linhasDoc.Insere(l);
             }
-            
+            ret.set_Linhas(linhasDoc);
+
+
             return ret;
 
         }
