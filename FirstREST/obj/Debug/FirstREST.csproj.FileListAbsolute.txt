@@ -281,3 +281,4 @@ C:\Users\user\Desktop\SINF-Backend\FirstREST\bin\zh-Hans\System.Spatial.resource
 C:\Users\user\Desktop\SINF-Backend\FirstREST\bin\zh-Hant\System.Spatial.resources.dll
 C:\Users\user\Desktop\SINF-Backend\FirstREST\obj\Debug\FirstREST.dll
 C:\Users\user\Desktop\SINF-Backend\FirstREST\obj\Debug\FirstREST.pdb
+C:\Users\user\Desktop\SINF-Backend\FirstREST\obj\Debug\FirstREST.csprojResolveAssemblyReference.cache

@@ -34,7 +34,7 @@ namespace FirstREST.Controllers
             }
             else
             {
-                Lib_Primavera.PriIntegration.Encomendas_Transforma(Lib_Primavera.PriIntegration.DocvendaToBEDocVenda(docvenda));
+               //Lib_Primavera.PriIntegration.Encomendas_Transforma(Lib_Primavera.PriIntegration.DocvendaToBEDocVenda(docvenda));
                 return docvenda;
             }
         }
@@ -42,18 +42,29 @@ namespace FirstREST.Controllers
         
         public HttpResponseMessage Post(string id)
         {
-            Lib_Primavera.Model.DocVenda docvenda = Lib_Primavera.PriIntegration.Encomenda_Get(id);
-            if (docvenda == null)
+            Lib_Primavera.Model.DocVenda dv = Lib_Primavera.PriIntegration.Encomenda_Get(id);
+            Lib_Primavera.Model.RespostaErro erro = new Lib_Primavera.Model.RespostaErro();
+            try
             {
-                throw new HttpResponseException(
-                        Request.CreateResponse(HttpStatusCode.NotFound));
+
+                erro = Lib_Primavera.PriIntegration.Encomendas_New(dv);
+                if (erro.Erro == 0)
+                {
+                    return Request.CreateResponse(HttpStatusCode.OK, erro.Descricao);
+                }
+                else
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotFound, erro.Descricao);
+                }
 
             }
-            else
+
+            catch (Exception exc)
             {
-                Lib_Primavera.PriIntegration.Encomendas_Transforma(Lib_Primavera.PriIntegration.DocvendaToBEDocVenda(docvenda));
-                return (Request.CreateResponse(HttpStatusCode.Accepted));
+                return Request.CreateResponse(HttpStatusCode.BadRequest, erro.Descricao);
+
             }
+                
 
         }
         

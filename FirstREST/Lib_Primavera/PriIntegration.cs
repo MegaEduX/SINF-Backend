@@ -88,7 +88,6 @@ namespace FirstREST.Lib_Primavera
 
         #endregion Cliente;   // -----------------------------  END   CLIENTE    -----------------------
 
-
         #region Artigo
 
         public static Lib_Primavera.Model.Artigo GetArtigo(string codArtigo)
@@ -160,52 +159,69 @@ namespace FirstREST.Lib_Primavera
         #region DocsVenda
 
 
-        public static void Encomendas_Transforma(GcpBEDocumentoVenda dv)
+        public static Model.RespostaErro Encomendas_New(Model.DocVenda dv)
         {
-            /*Lib_Primavera.Model.RespostaErro erro = new Model.RespostaErro();*/
-             
-            /*GcpBELinhaDocumentoVenda myLin = new GcpBELinhaDocumentoVenda();
+            Lib_Primavera.Model.RespostaErro erro = new Model.RespostaErro();
+            GcpBEDocumentoVenda myEnc = new GcpBEDocumentoVenda();
+            GcpBEDocumentoVenda myFac = new GcpBEDocumentoVenda();
+
+            GcpBELinhaDocumentoVenda myLin = new GcpBELinhaDocumentoVenda();
 
             GcpBELinhasDocumentoVenda myLinhas = new GcpBELinhasDocumentoVenda();
-             
-            PreencheRelacaoVendas rl = new PreencheRelacaoVendas();
-            List<Model.LinhaDocVenda> lstlindv = new List<Model.LinhaDocVenda>();*/
 
-            GcpBEDocumentoVenda doc = new GcpBEDocumentoVenda();
-            doc.set_Entidade(dv.get_Entidade());
-            doc.set_DataDoc(dv.get_DataDoc());
-            doc.set_TotalMerc(dv.get_TotalMerc());
-            doc.set_Serie(dv.get_Serie());
-            doc.set_Entidade("FA");
-            
+            PreencheRelacaoVendas rl = new PreencheRelacaoVendas();
+            List<Model.LinhaDocVenda> lstlindv = new List<Model.LinhaDocVenda>();
+
             try
             {
                 if (PriEngine.InitializeCompany(FirstREST.Properties.Settings.Default.Company.Trim(), FirstREST.Properties.Settings.Default.User.Trim(), FirstREST.Properties.Settings.Default.Password.Trim()) == true)
-                {/*
+                {
                     // Atribui valores ao cabecalho do doc
-                    //myEnc.set_DataDoc(dv.Data);
-                    //myEnc.set_Entidade(dv.Entidade);
-                    //myEnc.set_Serie(dv.Serie);
-                    //myEnc.set_Tipodoc("ECL");
-                    //myEnc.set_TipoEntidade("C");
+                    myEnc.set_DataDoc(dv.Data);
+                    myEnc.set_Entidade(dv.Entidade);
+                    myEnc.set_Serie(dv.Serie);
+                    myEnc.set_Tipodoc("ECL");
+                    myEnc.set_TipoEntidade("A");
+                    myEnc.set_NumDoc(dv.NumDoc);
+
+                    myFac.set_Entidade(dv.Entidade);
+                    myFac.set_TipoEntidade("C");
+                    myFac.set_Tipodoc("FA");
+
                     // Linhas do documento para a lista de linhas
                     lstlindv = dv.LinhasDoc;
-                    PriEngine.Engine.Comercial.Vendas.PreencheDadosRelacionados(myEnc, rl);
+                    //PriEngine.Engine.Comercial.Vendas.PreencheDadosRelacionados(myFac, rl);
                     foreach (Model.LinhaDocVenda lin in lstlindv)
                     {
                         PriEngine.Engine.Comercial.Vendas.AdicionaLinha(myEnc, lin.CodArtigo, lin.Quantidade, "", "", lin.PrecoUnitario, lin.Desconto);
                     }
 
-                    */
-                    List<GcpBELinhasDocumentoVenda> l = new List<GcpBELinhasDocumentoVenda>();
-                    l.Add(dv.get_Linhas());
-                    PriEngine.Engine.Comercial.Vendas.TransformaDocumentoEX2(l.ToArray(), doc, true, "", true);
+                    List<GcpBEDocumentoVenda> l = new List<GcpBEDocumentoVenda>();
+                    l.Add(myEnc);
+
+                    PriEngine.Engine.IniciaTransaccao();
+                    //PriEngine.Engine.Comercial.Vendas.Actualiza(myEnc, "Teste");
+                    PriEngine.Engine.Comercial.Vendas.TransformaDocumentoEX(l.ToArray(), myFac,true);
+                    PriEngine.Engine.TerminaTransaccao();
+                    erro.Erro = 0;
+                    erro.Descricao = "Sucesso";
+                    return erro;
+                }
+                else
+                {
+                    erro.Erro = 1;
+                    erro.Descricao = "Erro ao abrir empresa";
+                    return erro;
 
                 }
+
             }
-            catch (System.Runtime.InteropServices.COMException ex)
+            catch (Exception ex)
             {
-                Console.WriteLine("-------------------------------:" + ex.Message);
+                PriEngine.Engine.DesfazTransaccao();
+                erro.Erro = 1;
+                erro.Descricao = ex.Message;
+                return erro;
             }
         }
 
