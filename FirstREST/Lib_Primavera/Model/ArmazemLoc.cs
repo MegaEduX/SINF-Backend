@@ -7,20 +7,26 @@ namespace FirstREST.Lib_Primavera.Model
 {
     public class ArmazemLoc
     {
-        public string Nome
+        public string Artigo
+        {
+            get;
+            set;
+        }
+
+        public string Lote
+        {
+            get;
+            set;
+        }
+
+
+        public string Stock
         {
             get;
             set;
         }
 
         public string Localizacao
-        {
-            get;
-            set;
-        }
-
-
-        public string Descricao
         {
             get;
             set;

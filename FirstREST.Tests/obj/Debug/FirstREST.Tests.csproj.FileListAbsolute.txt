@@ -70,5 +70,3 @@ C:\SINF\Code_Examples\Hello World INTEG PRIMAVERA\FirstREST\FirstREST.Tests\obj\
 C:\SINF\Code_Examples\Hello World INTEG PRIMAVERA\FirstREST\FirstREST.Tests\obj\Debug\FirstREST.Tests.dll
 C:\SINF\Code_Examples\Hello World INTEG PRIMAVERA\FirstREST\FirstREST.Tests\obj\Debug\FirstREST.Tests.pdb
 C:\Users\user\Desktop\SINF-Backend\FirstREST.Tests\obj\Debug\FirstREST.Tests.csprojResolveAssemblyReference.cache
-C:\Users\user\Desktop\SINF-Backend\FirstREST.Tests\obj\Debug\FirstREST.Tests.dll
-C:\Users\user\Desktop\SINF-Backend\FirstREST.Tests\obj\Debug\FirstREST.Tests.pdb
