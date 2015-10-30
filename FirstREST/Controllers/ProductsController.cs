@@ -11,7 +11,7 @@ using FirstREST.Lib_Primavera.Model;
 
 namespace FirstREST.Controllers
 {
-    public class ArtigosController : ApiController
+    public class ProductsController : ApiController
     {
         //
         // GET: /Artigos/
