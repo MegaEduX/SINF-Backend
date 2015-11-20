@@ -65,6 +65,13 @@ namespace FirstREST.Lib_Primavera.Model
             set;
         }
 
+          public DateTime DataEntrega
+          {
+              get;
+
+              set;
+          }
+
 
     }
 }
