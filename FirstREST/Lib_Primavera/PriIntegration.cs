@@ -433,7 +433,7 @@ namespace FirstREST.Lib_Primavera
             return null;
         }
 
-        public static Model.ArmazemLoc InventoryStock_Get(string id)
+        public static List<Model.ArmazemLoc> InventoryStock_Get(string id)
         {
 
             StdBELista objListCab;
@@ -457,8 +457,12 @@ namespace FirstREST.Lib_Primavera
                     objListCab.Seguinte();
 
                 }
+                if (!lista.Any())
+                {
+                    return null;
+                }
 
-                return lista[0];
+                return lista;
             }
             return null;
         }

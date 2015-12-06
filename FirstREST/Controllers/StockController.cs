@@ -12,9 +12,9 @@ namespace FirstREST.Controllers
 {
     public class StockController : ApiController
     {
-        public ArmazemLoc Get(string id)
+        public List<ArmazemLoc> Get(string id)
         {
-            ArmazemLoc ret = Lib_Primavera.PriIntegration.InventoryStock_Get(id);
+            List<ArmazemLoc> ret = Lib_Primavera.PriIntegration.InventoryStock_Get(id);
             if (ret == null)
             {
                 throw new HttpResponseException(
