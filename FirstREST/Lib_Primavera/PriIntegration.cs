@@ -177,17 +177,28 @@ namespace FirstREST.Lib_Primavera
                 if (PriEngine.InitializeCompany(FirstREST.Properties.Settings.Default.Company.Trim(), FirstREST.Properties.Settings.Default.User.Trim(), FirstREST.Properties.Settings.Default.Password.Trim()) == true)
                 {
                     // Atribui valores ao cabecalho do doc
-                    myEnc.set_DataDoc(dv.Data);
-                    myEnc.set_Entidade(dv.Entidade);
-                    myEnc.set_Serie(dv.Serie);
-                    myEnc.set_Tipodoc("ECL");
-                    myEnc.set_TipoEntidade("A");
-                    myEnc.set_NumDoc(dv.NumDoc);
+                    //myEnc.set_DataDoc(dv.Data);
+                    //myEnc.set_TipoEntidade("C");
+                    
+                    //myEnc.set_Tipodoc("ECL");
+
+                    myEnc = PriEngine.Engine.Comercial.Vendas.Edita("000", "ECL", "A", dv.NumDoc);
+
+
+                    //myEnc.set_Entidade(dv.Entidade);
+                    //myEnc.set_Serie(dv.Serie);
+
+                   
+                    //myEnc.set_NumDoc(dv.NumDoc);
+                    //PriEngine.Engine.Comercial.Vendas.PreencheDadosRelacionados(myEnc, rl);
+
+                    myFac.set_TipoEntidade("C");
+                    myFac.set_Tipodoc("FA");
+                    myFac.set_Entidade(dv.Entidade);
+                    myFac.set_Serie("C");
+
                     PriEngine.Engine.Comercial.Vendas.PreencheDadosRelacionados(myFac, rl);
 
-                    myFac.set_Entidade(dv.Entidade);
-                    myFac.set_TipoEntidade("C");
-                    myFac.set_Tipodoc("GR");
 
                     // Linhas do documento para a lista de linhas
                     lstlindv = dv.LinhasDoc;
@@ -196,14 +207,11 @@ namespace FirstREST.Lib_Primavera
                     {
                         PriEngine.Engine.Comercial.Vendas.AdicionaLinha(myEnc, lin.CodArtigo, lin.Quantidade, "", "", lin.PrecoUnitario, lin.Desconto);
                     }
-
                     List<GcpBEDocumentoVenda> l = new List<GcpBEDocumentoVenda>();
                     l.Add(myEnc);
 
-                    PriEngine.Engine.IniciaTransaccao();
-                    //PriEngine.Engine.Comercial.Vendas.Actualiza(myEnc, "Teste");
+                 
                     PriEngine.Engine.Comercial.Vendas.TransformaDocumentoEX(l.ToArray(), myFac,true);
-                    PriEngine.Engine.TerminaTransaccao();
                     erro.Erro = 0;
                     erro.Descricao = "Sucesso";
                     return erro;
@@ -219,7 +227,6 @@ namespace FirstREST.Lib_Primavera
             }
             catch (Exception ex)
             {
-                PriEngine.Engine.DesfazTransaccao();
                 erro.Erro = 1;
                 erro.Descricao = ex.Message;
                 return erro;
@@ -422,6 +429,36 @@ namespace FirstREST.Lib_Primavera
                 }
 
                 return lista;
+            }
+            return null;
+        }
+
+        public static Model.ArmazemLoc InventoryStock_Get(string id)
+        {
+
+            StdBELista objListCab;
+            Model.ArmazemLoc dc = new Model.ArmazemLoc();
+            List<Lib_Primavera.Model.ArmazemLoc> lista = new List<Model.ArmazemLoc>();
+
+            if (PriEngine.InitializeCompany(FirstREST.Properties.Settings.Default.Company.Trim(), FirstREST.Properties.Settings.Default.User.Trim(), FirstREST.Properties.Settings.Default.Password.Trim()) == true)
+            {
+
+                objListCab = PriEngine.Engine.Consulta("select Artigo, Lote, StkActual, Localizacao from ArtigoArmazem Where Artigo =" + " '" + id + "'");
+                while (!objListCab.NoFim())
+                {
+                    dc = new Model.ArmazemLoc();
+                    dc.Artigo = objListCab.Valor("Artigo");
+                    dc.Lote = objListCab.Valor("Lote");
+                    double stock = objListCab.Valor("StkActual");
+                    dc.Stock = stock.ToString();
+                    dc.Localizacao = objListCab.Valor("Localizacao");
+
+                    lista.Add(dc);
+                    objListCab.Seguinte();
+
+                }
+
+                return lista[0];
             }
             return null;
         }

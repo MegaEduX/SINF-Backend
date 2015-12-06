@@ -9,7 +9,7 @@ using FirstREST.Lib_Primavera.Model;
 
 namespace FirstREST.Controllers
 {
-    public class CostumersController : ApiController
+    public class CustomersController : ApiController
     {
         //
         // GET: /Clientes/
@@ -23,7 +23,7 @@ namespace FirstREST.Controllers
         // GET api/Costumer/5    
         public Cliente Get(string id)
         {
-            Lib_Primavera.Model.Cliente cliente = Lib_Primavera.PriIntegration.GetCliente(id);
+             Lib_Primavera.Model.Cliente cliente = Lib_Primavera.PriIntegration.GetCliente(id);
             if (cliente == null)
             {
                 throw new HttpResponseException(
