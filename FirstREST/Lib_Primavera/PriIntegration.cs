@@ -159,61 +159,60 @@ namespace FirstREST.Lib_Primavera
         #region DocsVenda
 
 
+
+       
+
         public static Model.RespostaErro Encomendas_New(Model.DocVenda dv)
         {
             Lib_Primavera.Model.RespostaErro erro = new Model.RespostaErro();
             GcpBEDocumentoVenda myEnc = new GcpBEDocumentoVenda();
             GcpBEDocumentoVenda myFac = new GcpBEDocumentoVenda();
-
             GcpBELinhaDocumentoVenda myLin = new GcpBELinhaDocumentoVenda();
-
             GcpBELinhasDocumentoVenda myLinhas = new GcpBELinhasDocumentoVenda();
-
             PreencheRelacaoVendas rl = new PreencheRelacaoVendas();
+            GcpBESerie serie = new GcpBESerie();
             List<Model.LinhaDocVenda> lstlindv = new List<Model.LinhaDocVenda>();
-
             try
             {
                 if (PriEngine.InitializeCompany(FirstREST.Properties.Settings.Default.Company.Trim(), FirstREST.Properties.Settings.Default.User.Trim(), FirstREST.Properties.Settings.Default.Password.Trim()) == true)
                 {
-                    // Atribui valores ao cabecalho do doc
-                    //myEnc.set_DataDoc(dv.Data);
-                    //myEnc.set_TipoEntidade("C");
-                    
-                    //myEnc.set_Tipodoc("ECL");
-
-                    myEnc = PriEngine.Engine.Comercial.Vendas.Edita("000", "ECL", "A", dv.NumDoc);
-
-
-                    //myEnc.set_Entidade(dv.Entidade);
-                    //myEnc.set_Serie(dv.Serie);
-
-                   
-                    //myEnc.set_NumDoc(dv.NumDoc);
-                    //PriEngine.Engine.Comercial.Vendas.PreencheDadosRelacionados(myEnc, rl);
-
+                    if (PriEngine.Engine.Comercial.Vendas.Existe("000", "ECL", "A", dv.NumDoc))
+                    {
+                        myEnc = PriEngine.Engine.Comercial.Vendas.Edita("000", "ECL", "A", dv.NumDoc);
+                    }
+                    myFac.set_NumDoc(myEnc.get_NumDoc());
+                    myFac.set_Entidade(dv.Entidade);
                     myFac.set_TipoEntidade("C");
                     myFac.set_Tipodoc("FA");
-                    myFac.set_Entidade(dv.Entidade);
                     myFac.set_Serie("C");
+                    myFac.set_Assinatura(myEnc.get_Assinatura());
 
-                    PriEngine.Engine.Comercial.Vendas.PreencheDadosRelacionados(myFac, rl);
-
-
-                    // Linhas do documento para a lista de linhas
-                    lstlindv = dv.LinhasDoc;
-                    
-                    foreach (Model.LinhaDocVenda lin in lstlindv)
-                    {
-                        PriEngine.Engine.Comercial.Vendas.AdicionaLinha(myEnc, lin.CodArtigo, lin.Quantidade, "", "", lin.PrecoUnitario, lin.Desconto);
-                    }
+                    //Falta a Série do Doc Destino.Sugiro a utilização do método SeriePorDefeito mas para isso tb é necessario a data do doc destino
+                    myFac.set_DataDoc(new DateTime());
+                    serie.set_SeriePorDefeito(true);
+                    //Usar o preenche dados relacionados do Doc Destino
+                    String avisos = "";
+                    PriEngine.Engine.Comercial.Vendas.PreencheDadosRelacionados(myFac, PreencheRelacaoVendas.vdDadosTodos);
+                    //PriEngine.Engine.Comercial.Vendas.Actualiza(myFac, avisos);
+                    erro.Descricao += "Actualiza: " + avisos;
                     List<GcpBEDocumentoVenda> l = new List<GcpBEDocumentoVenda>();
                     l.Add(myEnc);
-
-                 
-                    PriEngine.Engine.Comercial.Vendas.TransformaDocumentoEX(l.ToArray(), myFac,true);
-                    erro.Erro = 0;
-                    erro.Descricao = "Sucesso";
+                    //Deve ser usado o strAvisos e passar como parametro no metodo
+                    //Devem ser removidas as transações
+                    String strAvisos = "";
+                    //PriEngine.Engine.IniciaTransaccao();
+                    PriEngine.Engine.Comercial.Vendas.TransformaDocumentoEX(l.ToArray(), myFac, true, strAvisos);
+                    //PriEngine.Engine.TerminaTransaccao();
+                    if (strAvisos.Length > 0)
+                    {
+                        erro.Erro = 1;
+                        erro.Descricao +=" Transforma Avsos: "+ strAvisos;
+                    }
+                    else
+                    {
+                        erro.Erro = 0;
+                        erro.Descricao = "Sucesso";
+                    }
                     return erro;
                 }
                 else
@@ -221,18 +220,15 @@ namespace FirstREST.Lib_Primavera
                     erro.Erro = 1;
                     erro.Descricao = "Erro ao abrir empresa";
                     return erro;
-
                 }
-
             }
             catch (Exception ex)
             {
                 erro.Erro = 1;
-                erro.Descricao = ex.Message;
+                erro.Descricao +=" Excecao: " +ex.Message;
                 return erro;
             }
         }
-
 
         public static GcpBEDocumentoVenda DocvendaToBEDocVenda(Model.DocVenda doc)
         {
