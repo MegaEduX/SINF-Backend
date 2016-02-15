@@ -158,7 +158,49 @@ namespace FirstREST.Lib_Primavera
 
         #region DocsVenda
 
+        public static Boolean Faturas_Check(string numdoc)
 
+        {
+            List<Model.DocVenda> compras = Encomendas_List();
+            List<Model.DocVenda> vendas = Faturas_List();
+
+            Model.DocVenda tempDoc = null;
+
+            foreach (Model.DocVenda compra in compras)
+            {
+                if (compra.NumDoc.Equals(int.Parse(numdoc)))
+                {
+                    tempDoc = compra;
+                    break;
+                }
+            }
+            if (tempDoc == null) return false;
+
+            List <Model.LinhaDocVenda> produtosCompra = tempDoc.LinhasDoc;
+
+            foreach (Model.DocVenda fatura in vendas)
+            {
+                Boolean foundEqual = false;
+                if(fatura.LinhasDoc.Count == produtosCompra.Count && fatura.Entidade.Equals(tempDoc.Entidade)){
+                    for (int i = 0; i < fatura.LinhasDoc.Count; i++)
+                    {
+                        if (produtosCompra[i].CodArtigo.Equals(fatura.LinhasDoc[i].CodArtigo) && produtosCompra[i].Quantidade.Equals(fatura.LinhasDoc[i].Quantidade) && produtosCompra[i].PrecoUnitario.Equals(fatura.LinhasDoc[i].PrecoUnitario) && produtosCompra[i].TotalLiquido.Equals(fatura.LinhasDoc[i].TotalLiquido))
+                            foundEqual = true;
+                        else {
+                            foundEqual = false;
+                            break;
+                        }
+                    }
+
+                    if (foundEqual)
+                        return true;
+
+                }
+            }
+            return false;
+
+
+        }
 
        
 
@@ -184,7 +226,7 @@ namespace FirstREST.Lib_Primavera
                     myFac.set_Entidade(dv.Entidade);
                     myFac.set_TipoEntidade("C");
                     myFac.set_Tipodoc("FA");
-                    myFac.set_Serie("C");
+                    myFac.set_Serie("D");
                     myFac.set_Assinatura(myEnc.get_Assinatura());
 
                     //Falta a Série do Doc Destino.Sugiro a utilização do método SeriePorDefeito mas para isso tb é necessario a data do doc destino
@@ -262,7 +304,59 @@ namespace FirstREST.Lib_Primavera
             return ret;
 
         }
-     
+
+
+        public static List<Model.DocVenda> Faturas_List()
+        {
+
+            StdBELista objListCab;
+            StdBELista objListLin;
+            Model.DocVenda dv = new Model.DocVenda();
+            List<Model.DocVenda> listdv = new List<Model.DocVenda>();
+            Model.LinhaDocVenda lindv = new Model.LinhaDocVenda();
+            List<Model.LinhaDocVenda> listlindv = new
+            List<Model.LinhaDocVenda>();
+
+            if (PriEngine.InitializeCompany(FirstREST.Properties.Settings.Default.Company.Trim(), FirstREST.Properties.Settings.Default.User.Trim(), FirstREST.Properties.Settings.Default.Password.Trim()) == true)
+            {
+                objListCab = PriEngine.Engine.Consulta("SELECT id, Entidade, Data, NumDoc, TotalMerc, Serie From CabecDoc where TipoDoc='FA'");
+                while (!objListCab.NoFim())
+                {
+                    dv = new Model.DocVenda();
+                    dv.id = objListCab.Valor("id");
+                    dv.Entidade = objListCab.Valor("Entidade");
+                    dv.NumDoc = objListCab.Valor("NumDoc");
+                    dv.Data = objListCab.Valor("Data");
+                    dv.TotalMerc = objListCab.Valor("TotalMerc");
+                    dv.Serie = objListCab.Valor("Serie");
+                    objListLin = PriEngine.Engine.Consulta("SELECT idCabecDoc, Artigo, Descricao, Quantidade, Unidade, PrecUnit, Desconto1, TotalILiquido, PrecoLiquido, DataEntrega from LinhasDoc where IdCabecDoc='" + dv.id + "' order By NumLinha");
+                    listlindv = new List<Model.LinhaDocVenda>();
+
+                    while (!objListLin.NoFim())
+                    {
+                        lindv = new Model.LinhaDocVenda();
+                        lindv.IdCabecDoc = objListLin.Valor("idCabecDoc");
+                        lindv.CodArtigo = objListLin.Valor("Artigo");
+                        lindv.DescArtigo = objListLin.Valor("Descricao");
+                        lindv.Quantidade = objListLin.Valor("Quantidade");
+                        lindv.Unidade = objListLin.Valor("Unidade");
+                        lindv.Desconto = objListLin.Valor("Desconto1");
+                        lindv.PrecoUnitario = objListLin.Valor("PrecUnit");
+                        lindv.TotalILiquido = objListLin.Valor("TotalILiquido");
+                        lindv.TotalLiquido = objListLin.Valor("PrecoLiquido");
+                        lindv.DataEntrega = objListLin.Valor("DataEntrega");
+
+                        listlindv.Add(lindv);
+                        objListLin.Seguinte();
+                    }
+
+                    dv.LinhasDoc = listlindv;
+                    listdv.Add(dv);
+                    objListCab.Seguinte();
+                }
+            }
+            return listdv;
+        }
 
         public static List<Model.DocVenda> Encomendas_List()
         {

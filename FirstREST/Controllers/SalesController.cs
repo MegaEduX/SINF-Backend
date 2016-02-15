@@ -38,35 +38,6 @@ namespace FirstREST.Controllers
                 return docvenda;
             }
         }
-
-        
-        public HttpResponseMessage Post(string id)
-        {
-            Lib_Primavera.Model.DocVenda dv = Lib_Primavera.PriIntegration.Encomenda_Get(id);
-            Lib_Primavera.Model.RespostaErro erro = new Lib_Primavera.Model.RespostaErro();
-            try
-            {
-
-                erro = Lib_Primavera.PriIntegration.Encomendas_New(dv);
-                if (erro.Erro == 0)
-                {
-                    return Request.CreateResponse(HttpStatusCode.OK, erro.Descricao);
-                }
-                else
-                {
-                    return Request.CreateResponse(HttpStatusCode.NotFound, erro.Descricao);
-                }
-
-            }
-
-            catch (Exception exc)
-            {
-                return Request.CreateResponse(HttpStatusCode.BadRequest, erro.Descricao);
-
-            }
-                
-
-        }
         
     }
 }
